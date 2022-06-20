@@ -30,7 +30,7 @@ if __name__ == "__main__":
     width = 600
     height = 600
 
-    window = glfw.create_window(width, height, "Projections Demo", None, None)
+    window = glfw.create_window(width, height, "Buildings Viewer", None, None)
 
     if not window:
         glfw.terminate()
@@ -56,8 +56,11 @@ if __name__ == "__main__":
     glEnable(GL_DEPTH_TEST)
     # Convenience function to ease initialization
     empire = EmpireState(pipeline)
-    
+    willis = WillisTower(pipeline)
+
     empireGround = EmpireGround(textureShaderProgram)
+    willisGround = WillisGround(textureShaderProgram)
+    burjGround = BurjAlArabGround(textureShaderProgram)
     # Creating shapes on GPU memory
 
     t0 = glfw.get_time()
@@ -82,15 +85,34 @@ if __name__ == "__main__":
 
 
         # Drawing shapes with different model transformations
-        glUseProgram(pipeline.shaderProgram)
-        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "projection"), 1, GL_TRUE, controller.project_value)    
-        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "view"), 1, GL_TRUE, controller.view)
-        empire.draw(pipeline)
+        if controller.building == 0:
+            glUseProgram(pipeline.shaderProgram)
+            glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "projection"), 1, GL_TRUE, controller.project_value)    
+            glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "view"), 1, GL_TRUE, controller.view)
+            empire.draw(pipeline)
 
-        glUseProgram(textureShaderProgram.shaderProgram)
-        glUniformMatrix4fv(glGetUniformLocation(textureShaderProgram.shaderProgram, "projection"), 1, GL_TRUE, controller.project_value)  
-        glUniformMatrix4fv(glGetUniformLocation(textureShaderProgram.shaderProgram, "view"), 1, GL_TRUE, controller.view)
-        empireGround.draw(textureShaderProgram)
+            glUseProgram(textureShaderProgram.shaderProgram)
+            glUniformMatrix4fv(glGetUniformLocation(textureShaderProgram.shaderProgram, "projection"), 1, GL_TRUE, controller.project_value)  
+            glUniformMatrix4fv(glGetUniformLocation(textureShaderProgram.shaderProgram, "view"), 1, GL_TRUE, controller.view)
+            empireGround.draw(textureShaderProgram)
+        
+        elif controller.building == 1:
+            glUseProgram(pipeline.shaderProgram)
+            glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "projection"), 1, GL_TRUE, controller.project_value)    
+            glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "view"), 1, GL_TRUE, controller.view)
+            willis.draw(pipeline)
+
+            glUseProgram(textureShaderProgram.shaderProgram)
+            glUniformMatrix4fv(glGetUniformLocation(textureShaderProgram.shaderProgram, "projection"), 1, GL_TRUE, controller.project_value)  
+            glUniformMatrix4fv(glGetUniformLocation(textureShaderProgram.shaderProgram, "view"), 1, GL_TRUE, controller.view)
+            willisGround.draw(textureShaderProgram)
+        
+        elif controller.building == 2:
+
+            glUseProgram(textureShaderProgram.shaderProgram)
+            glUniformMatrix4fv(glGetUniformLocation(textureShaderProgram.shaderProgram, "projection"), 1, GL_TRUE, controller.project_value)  
+            glUniformMatrix4fv(glGetUniformLocation(textureShaderProgram.shaderProgram, "view"), 1, GL_TRUE, controller.view)
+            burjGround.draw(textureShaderProgram)
 
         #glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "model"), 1, GL_TRUE, tr.identity())
         #pipeline.drawCall(gpuAxis, GL_LINES)

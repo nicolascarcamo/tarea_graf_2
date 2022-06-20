@@ -44,25 +44,55 @@ class EmpireState(object):
         
         gpuRainbowCube = createGPUShape(bs.createRainbowCube(), pipeline)
         gpuRainbowCube1 = createGPUShape(bs.createRainbowCube(), pipeline)
+        gpuRainbowCube2 = createGPUShape(bs.createRainbowCube(), pipeline)
+        gpuRainbowCube3 = createGPUShape(bs.createRainbowCube(), pipeline)
+        gpuRainbowCube4 = createGPUShape(bs.createRainbowCube(), pipeline)
+        gpuRainbowCube5 = createGPUShape(bs.createRainbowCube(), pipeline)
+        gpuRainbowCube6 = createGPUShape(bs.createRainbowCube(), pipeline)
 
-        body = sg.SceneGraphNode('body')
-        body.transform = tr.scale(1,1,4)
+        #  Base
+        body = sg.SceneGraphNode('base')
+        body.transform = tr.scale(1, 1, 0.6)
         body.childs += [gpuRainbowCube]
 
+        #  2da Base
+        body2 = sg.SceneGraphNode('base2')
+        body2.transform = tr.matmul([tr.translate(0, 0, 0.6),tr.scale(0.8, 0.8, 1.2)])
+        body2.childs += [gpuRainbowCube1]
+
+        #  Pilar central
+        body3 = sg.SceneGraphNode('pilar_cen')
+        body3.transform = tr.matmul([tr.translate(0, 0, 1.2),tr.scale(0.4, 0.4, 3.2)])
+        body3.childs += [gpuRainbowCube2]
+
+        #  Pilar izq
+        body4 = sg.SceneGraphNode('pilar_izq')
+        body4.transform = tr.matmul([tr.translate(0.2, 0, 1.2),tr.scale(0.2, 0.5, 2.6)])
+        body4.childs += [gpuRainbowCube3]
+
+        #  Pilar der
+        body5 = sg.SceneGraphNode('pilar_der')
+        body5.transform = tr.matmul([tr.translate(-0.25, 0, 1.2),tr.scale(0.2, 0.5, 2.6)])
+        body5.childs += [gpuRainbowCube4]
+
+        #  Pilar final
+        body6 = sg.SceneGraphNode('pilar_fin')
+        body6.transform = tr.matmul([tr.translate(0.0, 0, 1.8),tr.scale(0.17, 0.17, 3.6)])
+        body6.childs += [gpuRainbowCube5]
+
+        #  Antena
+        body7 = sg.SceneGraphNode('antena')
+        body7.transform = tr.matmul([tr.translate(0.0, 0, 2.1),tr.scale(0.07, 0.07, 4)])
+        body7.childs += [gpuRainbowCube6]
+
+
         transform_mono = sg.SceneGraphNode('empireStateTR')
-        transform_mono.transform = tr.identity()
-        transform_mono.childs += [body]
+        transform_mono.childs += [body, body2, body3, body4, body5, body6, body7]
 
         self.model = transform_mono
-        self.gpu = gpuRainbowCube
-        self.gpu1 = gpuRainbowCube1
-        
+
 
     def draw(self, pipeline):
-        #glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "model"), 1, GL_TRUE, tr.matmul([tr.translate(0, 0, 0.6), tr.scale(1, 1, 0.6)]))
-        #pipeline.drawCall(self.gpu)
-        #glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "model"), 1, GL_TRUE, tr.matmul([tr.translate(0, 0, 1.2),tr.scale(0.8, 0.8, 1.2)]))
-        #pipeline.drawCall(self.gpu1)
         sg.drawSceneGraphNode(self.model, pipeline, "model")
 
 
@@ -70,10 +100,67 @@ class EmpireState(object):
 class WillisTower(object):
 
     def __init__(self, pipeline):
-        gpuRainbowCube = createGPUShape(bs.createRainbowCube(), pipeline)
+        gpuOrangeCube = createGPUShape(bs.createColorCube(1, 0.7, 0.24), pipeline)
+        gpuPinkCube = createGPUShape(bs.createColorCube(1, 0.62, 0.76), pipeline)
+        gpuGreenCube = createGPUShape(bs.createColorCube(0.619, 1, 0.627), pipeline)
+        gpuBlueCube = createGPUShape(bs.createColorCube(0.619, 0.784, 1), pipeline)
+
+        #  Base
+        body = sg.SceneGraphNode('base')
+        body.transform = tr.matmul([tr.translate(0.0, 0.125, 2),tr.scale(0.25, 0.5, 4)])
+        body.childs += [gpuPinkCube]
+
+
+        #  
+        orange = sg.SceneGraphNode('naranjo')
+        orange.transform = tr.matmul([tr.translate(0, 0, 1.5),tr.scale(0.25, 0.25, 3)])
+        orange.childs += [gpuOrangeCube]
+
+        orange_izq = sg.SceneGraphNode('naranjoLeft')
+        orange_izq.transform = tr.translate(-0.25, 0, 0)
+        orange_izq.childs += [orange]
+
+        orange_der = sg.SceneGraphNode('naranjoRight')
+        orange_der.transform = tr.translate(0.25, 0, 0)
+        orange_der.childs += [orange]
+
+        orange_back = sg.SceneGraphNode('naranjoBack')
+        orange_back.transform = tr.translate(0, -0.25, 0)
+        orange_back.childs += [orange]
+
+        green = sg.SceneGraphNode('verde')
+        green.transform = tr.matmul([tr.translate(0.0, 0.0, 1.25),tr.scale(0.25, 0.25, 2.5)])
+        green.childs += [gpuGreenCube]
+
+        green_der = sg.SceneGraphNode('verdeLeft')
+        green_der.transform = tr.translate(0.25, 0.25, 0)
+        green_der.childs += [green]
+
+        green_izq = sg.SceneGraphNode('verdeLeft')
+        green_izq.transform = tr.translate(-0.25, -0.25, 0)
+        green_izq.childs += [green]
+
+
+        blue = sg.SceneGraphNode('azul')
+        blue.transform = tr.matmul([tr.translate(0.0, 0.0, 0.75),tr.scale(0.25, 0.25, 1.5)])
+        blue.childs += [gpuBlueCube]
+
+        blue_der = sg.SceneGraphNode('azulLeft')
+        blue_der.transform = tr.translate(-0.25, 0.25, 0)
+        blue_der.childs += [blue]
+
+        blue_izq = sg.SceneGraphNode('azulRight')
+        blue_izq.transform = tr.translate(0.25, -0.25, 0)
+        blue_izq.childs += [blue]
+
+        transform_mono = sg.SceneGraphNode('WillisTowerTR')
+        transform_mono.childs += [body, orange_izq, orange_der, orange_back, green_der, green_izq, blue_der, blue_izq]
+
+        self.model = transform_mono
 
     def draw(self, pipeline):
-        return
+        sg.drawSceneGraphNode(self.model, pipeline, "model")
+
 
 
 class BurjAlArab(object):
@@ -100,7 +187,44 @@ class EmpireGround(object):
         self.gpu = gpu_ground
 
     def draw(self, pipeline):
-        #self.model.transform = tr.translate(0, 0, 0)
-        #sg.drawSceneGraphNode(self.model, pipeline, "transform")
+
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "model"), 1, GL_TRUE, tr.matmul([tr.translate(0, 0, 0),tr.scale(5, 5, 0)]))
+        pipeline.drawCall(self.gpu)
+
+class WillisGround(object):
+
+    def __init__(self, pipeline):
+        gpu_ground = create_gpu_ground(bs.createTextureCube(), pipeline, "WillisTowerMaps.png")
+
+        ground = sg.SceneGraphNode("ground")
+        ground.transform = tr.scale(2, 2, 1)
+        ground.childs += [gpu_ground]
+
+        ground_tr = sg.SceneGraphNode('groundTR')
+        ground_tr.childs += [ground]
+
+        self.model = ground_tr
+        self.gpu = gpu_ground
+
+    def draw(self, pipeline):
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "model"), 1, GL_TRUE, tr.matmul([tr.translate(0, 0, 0),tr.scale(5, 5, 0)]))
+        pipeline.drawCall(self.gpu)
+
+class BurjAlArabGround(object):
+
+    def __init__(self, pipeline):
+        gpu_ground = create_gpu_ground(bs.createTextureCube(), pipeline, "BurjAlArabMaps.png")
+
+        ground = sg.SceneGraphNode("ground")
+        ground.transform = tr.scale(2, 2, 1)
+        ground.childs += [gpu_ground]
+
+        ground_tr = sg.SceneGraphNode('groundTR')
+        ground_tr.childs += [ground]
+
+        self.model = ground_tr
+        self.gpu = gpu_ground
+
+    def draw(self, pipeline):
         glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "model"), 1, GL_TRUE, tr.matmul([tr.translate(0, 0, 0),tr.scale(5, 5, 0)]))
         pipeline.drawCall(self.gpu)
