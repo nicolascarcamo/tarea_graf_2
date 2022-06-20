@@ -15,7 +15,7 @@ import grafica.transformations as tr
 import grafica.basic_shapes as bs
 import grafica.easy_shaders as es
 
-__author__ = "Daniel Calderon"
+__author__ = "Nicolas Carcamo"
 __license__ = "MIT"
 
 
@@ -48,16 +48,15 @@ if __name__ == "__main__":
     textureShaderProgram = es.SimpleTextureModelViewProjectionShaderProgram()
     # Telling OpenGL to use our shader program
     glUseProgram(pipeline.shaderProgram)
-
     # Setting up the clear screen color
     glClearColor(0.55, 0.55, 0.55, 1.0)
 
     # As we work in 3D, we need to check which part is in front,
     # and which one is at the back
     glEnable(GL_DEPTH_TEST)
-    division = float(width) / float(height)
     # Convenience function to ease initialization
     empire = EmpireState(pipeline)
+    
     empireGround = EmpireGround(textureShaderProgram)
     # Creating shapes on GPU memory
 
@@ -66,28 +65,31 @@ if __name__ == "__main__":
     while not glfw.window_should_close(window):
         # Using GLFW to check for input events
         glfw.poll_events()
-        #glUseProgram(pipeline.shaderProgram)
+
 
         # Getting the time difference from the previous iteration
         t1 = glfw.get_time()
         dt = t1 - t0
         t0 = t1
-
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         # Movimiento de camara, relleno o no de las figuras dependiendo del estado del controlador
         controller.update(pipeline, window, dt)
         
         # Setting up the projection transform
-        controller.project(pipeline, width, height)
+        controller.project(width, height)
 
         # Clearing the screen in both, color and depth
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
 
         # Drawing shapes with different model transformations
-
+        glUseProgram(pipeline.shaderProgram)
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "projection"), 1, GL_TRUE, controller.project_value)    
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "view"), 1, GL_TRUE, controller.view)
         empire.draw(pipeline)
 
         glUseProgram(textureShaderProgram.shaderProgram)
-
+        glUniformMatrix4fv(glGetUniformLocation(textureShaderProgram.shaderProgram, "projection"), 1, GL_TRUE, controller.project_value)  
+        glUniformMatrix4fv(glGetUniformLocation(textureShaderProgram.shaderProgram, "view"), 1, GL_TRUE, controller.view)
         empireGround.draw(textureShaderProgram)
 
         #glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "model"), 1, GL_TRUE, tr.identity())

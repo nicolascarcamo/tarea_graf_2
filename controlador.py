@@ -17,8 +17,10 @@ class Controller:
     def __init__(self):
         self.fillPolygon = True
         self.projection = 0
+        self.project_value = 0
         #Empire State = 0 // Willis Tower = 1 // Burj Al Arab = 2
         self.building = 0
+        self.view = 0
 
 
         self.theta = np.pi / 4
@@ -83,13 +85,11 @@ class Controller:
 
         viewPos = np.array([camX, camY, 10])
 
-        view = tr.lookAt(
+        self.view = tr.lookAt(
             viewPos,
             np.array([0, 0, 0]),
             np.array([0, 0, 1])
         )
-
-        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "view"), 1, GL_TRUE, view)
 
         if (self.fillPolygon):
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
@@ -98,17 +98,16 @@ class Controller:
 
 
 
-    def project(self, pipeline, width, height):
+    def project(self, width, height):
         if self.projection == PROJECTION_ORTHOGRAPHIC:
-            projection = tr.ortho(-8, 8, -8, 8, 0.1, 100)
+            self.project_value = tr.ortho(-8, 8, -8, 8, 0.1, 100)
 
         elif self.projection == PROJECTION_FRUSTUM:
-            projection = tr.frustum(-5, 5, -5, 5, 9, 100)
+            self.project_value = tr.frustum(-5, 5, -5, 5, 9, 100)
 
         elif self.projection == PROJECTION_PERSPECTIVE:
-            projection = tr.perspective(60, float(width) / float(height), 0.1, 100)
+            self.project_value = tr.perspective(60, float(width) / float(height), 0.1, 100)
 
         else:
             raise Exception()
 
-        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "projection"), 1, GL_TRUE, projection)

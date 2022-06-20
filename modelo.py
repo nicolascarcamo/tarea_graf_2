@@ -50,6 +50,7 @@ class EmpireState(object):
         body.childs += [gpuRainbowCube]
 
         transform_mono = sg.SceneGraphNode('empireStateTR')
+        transform_mono.transform = tr.identity()
         transform_mono.childs += [body]
 
         self.model = transform_mono
@@ -58,10 +59,11 @@ class EmpireState(object):
         
 
     def draw(self, pipeline):
-        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "model"), 1, GL_TRUE, tr.matmul([tr.translate(0, 0, 0.6), tr.scale(1, 1, 0.6)]))
-        pipeline.drawCall(self.gpu)
-        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "model"), 1, GL_TRUE, tr.matmul([tr.translate(0, 0, 1.2),tr.scale(0.8, 0.8, 1.2)]))
-        pipeline.drawCall(self.gpu1)
+        #glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "model"), 1, GL_TRUE, tr.matmul([tr.translate(0, 0, 0.6), tr.scale(1, 1, 0.6)]))
+        #pipeline.drawCall(self.gpu)
+        #glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "model"), 1, GL_TRUE, tr.matmul([tr.translate(0, 0, 1.2),tr.scale(0.8, 0.8, 1.2)]))
+        #pipeline.drawCall(self.gpu1)
+        sg.drawSceneGraphNode(self.model, pipeline, "model")
 
 
 
@@ -85,8 +87,8 @@ class BurjAlArab(object):
 class EmpireGround(object):
 
     def __init__(self, pipeline):
-        gpu_ground = create_gpu_ground(bs.createTextureQuad(1, 1), pipeline, "EmpireStateMaps.jpeg")
-            
+        gpu_ground = create_gpu_ground(bs.createTextureCube(), pipeline, "EmpireStateMaps.png")
+
         ground = sg.SceneGraphNode("ground")
         ground.transform = tr.scale(2, 2, 1)
         ground.childs += [gpu_ground]
@@ -100,5 +102,5 @@ class EmpireGround(object):
     def draw(self, pipeline):
         #self.model.transform = tr.translate(0, 0, 0)
         #sg.drawSceneGraphNode(self.model, pipeline, "transform")
-        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "model"), 1, GL_TRUE, tr.matmul([tr.translate(0, 0, 0),tr.scale(5, 5, 1)]))
+        glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "model"), 1, GL_TRUE, tr.matmul([tr.translate(0, 0, 0),tr.scale(5, 5, 0)]))
         pipeline.drawCall(self.gpu)
