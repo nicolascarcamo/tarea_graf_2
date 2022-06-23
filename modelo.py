@@ -52,7 +52,7 @@ class EmpireState(object):
 
         #  Base
         body = sg.SceneGraphNode('base')
-        body.transform = tr.scale(1, 1, 0.6)
+        body.transform = tr.matmul([tr.translate(0, 0, 0.15),tr.scale(1, 1, 0.3)])
         body.childs += [gpuRainbowCube]
 
         #  2da Base
@@ -62,17 +62,17 @@ class EmpireState(object):
 
         #  Pilar central
         body3 = sg.SceneGraphNode('pilar_cen')
-        body3.transform = tr.matmul([tr.translate(0, 0, 1.2),tr.scale(0.4, 0.4, 3.2)])
+        body3.transform = tr.matmul([tr.translate(0, 0, 1.4),tr.scale(0.4, 0.4, 2.8)])
         body3.childs += [gpuRainbowCube2]
 
         #  Pilar izq
         body4 = sg.SceneGraphNode('pilar_izq')
-        body4.transform = tr.matmul([tr.translate(0.2, 0, 1.2),tr.scale(0.2, 0.5, 2.6)])
+        body4.transform = tr.matmul([tr.translate(0.2, 0, 1.3),tr.scale(0.2, 0.5, 2.4)])
         body4.childs += [gpuRainbowCube3]
 
         #  Pilar der
         body5 = sg.SceneGraphNode('pilar_der')
-        body5.transform = tr.matmul([tr.translate(-0.25, 0, 1.2),tr.scale(0.2, 0.5, 2.6)])
+        body5.transform = tr.matmul([tr.translate(-0.25, 0, 1.3),tr.scale(0.2, 0.5, 2.4)])
         body5.childs += [gpuRainbowCube4]
 
         #  Pilar final
@@ -166,10 +166,63 @@ class WillisTower(object):
 class BurjAlArab(object):
 
     def __init__(self, pipeline):
-        gpuRainbowCube = createGPUShape(bs.createRainbowCube(), pipeline)
+        gpuWhiteCube = createGPUShape(bs.createColorCube(0.9, 0.9, 0.9), pipeline)
+        gpuLightBlueCube = createGPUShape(bs.createColorCube(0.28, 0.87, 0.92), pipeline)
+
+        body = sg.SceneGraphNode('base')
+        body.transform = tr.matmul([tr.translate(0.0, 0.3, 1.25),tr.scale(0.4, 0.2, 2.5)])
+        body.childs += [gpuWhiteCube]
+        
+        pilar = sg.SceneGraphNode('pilar')
+        pilar.transform = tr.matmul([tr.translate(0.0, 0.3, 1.6375),tr.scale(0.1, 0.1, 3.25)])
+        pilar.childs += [gpuWhiteCube]
+        
+        delimitador = sg.SceneGraphNode('base')
+        delimitador.transform = tr.matmul([tr.translate(0.0, -0.5, 2),tr.scale(1, 0.1, 4)])
+        delimitador.childs += [gpuWhiteCube]
+
+        delimitador2 = sg.SceneGraphNode('base')
+        delimitador2.transform = tr.matmul([tr.translate(0.0, 0.5, 1.5),tr.scale(1, 0.1, 3)])
+        delimitador2.childs += [gpuWhiteCube]
+
+
+        alero = sg.SceneGraphNode('alero')
+        alero.transform = tr.matmul([tr.translate(0.0, 0.4, 1.6),tr.scale(0.8, 0.2, 0.25)])
+        alero.childs += [gpuWhiteCube]
+
+        ventana1 = sg.SceneGraphNode('ventana1')
+        ventana1.transform = tr.matmul([tr.translate(0.0, 0.025, 0.25),tr.scale(0.8, 0.35, 0.5)])
+        ventana1.childs += [gpuLightBlueCube]
+
+        ventana2 = sg.SceneGraphNode('ventana2')
+        ventana2.transform = tr.matmul([tr.translate(0.0, -0.125, 0.5),tr.scale(0.8, 0.45, 0.5)])
+        ventana2.childs += [gpuLightBlueCube]
+
+        ventana3 = sg.SceneGraphNode('ventana3')
+        ventana3.transform = tr.matmul([tr.translate(0.0, -0.1, 0.75),tr.scale(0.8, 0.6, 0.5)])
+        ventana3.childs += [gpuLightBlueCube]
+
+        ventana4 = sg.SceneGraphNode('ventana4')
+        ventana4.transform = tr.matmul([tr.translate(0.0, -0.125, 1),tr.scale(0.8, 0.45, 0.5)])
+        ventana4.childs += [gpuLightBlueCube]
+
+        ventana5 = sg.SceneGraphNode('ventana5')
+        ventana5.transform = tr.matmul([tr.translate(0.0, 0.025, 1.25),tr.scale(0.8, 0.35, 0.5)])
+        ventana5.childs += [gpuLightBlueCube]
+
+        ventana6 = sg.SceneGraphNode('ventana6')
+        ventana6.transform = tr.matmul([tr.translate(0.0, 0.05, 1.5),tr.scale(0.8, 0.3, 0.5)])
+        ventana6.childs += [gpuLightBlueCube]
+
+
+
+        transform_mono = sg.SceneGraphNode('BurjAlArabTR')
+        transform_mono.childs += [body, pilar, alero, ventana1, ventana2, ventana3, ventana4, ventana5, ventana6]
+
+        self.model = transform_mono
 
     def draw(self, pipeline):
-        return
+        sg.drawSceneGraphNode(self.model, pipeline, "model")
 
 class EmpireGround(object):
 

@@ -1,7 +1,4 @@
 # coding=utf-8
-"""
-Projections example.
-"""
 
 import glfw
 from OpenGL.GL import *
@@ -14,10 +11,6 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import grafica.transformations as tr
 import grafica.basic_shapes as bs
 import grafica.easy_shaders as es
-
-__author__ = "Nicolas Carcamo"
-__license__ = "MIT"
-
 
 # We will use the global controller as communication with the callback function
 
@@ -57,6 +50,7 @@ if __name__ == "__main__":
     # Convenience function to ease initialization
     empire = EmpireState(pipeline)
     willis = WillisTower(pipeline)
+    burj = BurjAlArab(pipeline)
 
     empireGround = EmpireGround(textureShaderProgram)
     willisGround = WillisGround(textureShaderProgram)
@@ -108,6 +102,10 @@ if __name__ == "__main__":
             willisGround.draw(textureShaderProgram)
         
         elif controller.building == 2:
+            glUseProgram(pipeline.shaderProgram)
+            glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "projection"), 1, GL_TRUE, controller.project_value)    
+            glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "view"), 1, GL_TRUE, controller.view)
+            burj.draw(pipeline)
 
             glUseProgram(textureShaderProgram.shaderProgram)
             glUniformMatrix4fv(glGetUniformLocation(textureShaderProgram.shaderProgram, "projection"), 1, GL_TRUE, controller.project_value)  
