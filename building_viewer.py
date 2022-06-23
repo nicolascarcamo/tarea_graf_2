@@ -11,6 +11,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import grafica.transformations as tr
 import grafica.basic_shapes as bs
 import grafica.easy_shaders as es
+import grafica.lighting_shaders as ls
 
 # We will use the global controller as communication with the callback function
 
@@ -39,6 +40,9 @@ if __name__ == "__main__":
     # Assembling the shader program
     pipeline = es.SimpleModelViewProjectionShaderProgram()
     textureShaderProgram = es.SimpleTextureModelViewProjectionShaderProgram()
+    lightingPipeline = ls.SimpleGouraudShaderProgram()
+    phongPipeline = ls.SimplePhongShaderProgram()
+
     # Telling OpenGL to use our shader program
     glUseProgram(pipeline.shaderProgram)
     # Setting up the clear screen color
@@ -111,6 +115,36 @@ if __name__ == "__main__":
             glUniformMatrix4fv(glGetUniformLocation(textureShaderProgram.shaderProgram, "projection"), 1, GL_TRUE, controller.project_value)  
             glUniformMatrix4fv(glGetUniformLocation(textureShaderProgram.shaderProgram, "view"), 1, GL_TRUE, controller.view)
             burjGround.draw(textureShaderProgram)
+
+
+        glUseProgram(lightingPipeline.shaderProgram)
+
+        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "La"), 1.0, 1.0, 1.0)
+        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Ld"), 1.0, 1.0, 1.0)
+        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Ls"), 1.0, 1.0, 1.0)
+
+        # Object is barely visible at only ambient. Diffuse behavior is slightly red. Sparkles are white
+        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Ka"), 0.2, 0.2, 0.2)
+        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Kd"), 0.5, 0.5, 0.5)
+        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Ks"), 1.0, 1.0, 1.0)
+
+        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "lightPosition"), -5, -5, 5)
+        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "viewPosition"), controller.viewPos[0], controller.viewPos[1],
+                    controller.viewPos[2])
+        glUniform1ui(glGetUniformLocation(lightingPipeline.shaderProgram, "shininess"), 50)
+
+        glUniform1f(glGetUniformLocation(lightingPipeline.shaderProgram, "constantAttenuation"), 0.0001)
+        glUniform1f(glGetUniformLocation(lightingPipeline.shaderProgram, "linearAttenuation"), 0.03)
+        glUniform1f(glGetUniformLocation(lightingPipeline.shaderProgram, "quadraticAttenuation"), 0.01)
+
+        glUniformMatrix4fv(glGetUniformLocation(lightingPipeline.shaderProgram, "projection"), 1, GL_TRUE, controller.project_value)
+        glUniformMatrix4fv(glGetUniformLocation(lightingPipeline.shaderProgram, "view"), 1, GL_TRUE, controller.view)
+        if controller.building == 0:
+            glUniformMatrix4fv(glGetUniformLocation(lightingPipeline.shaderProgram, "model"), 1, GL_TRUE, tr.identity())
+        elif controller.building == 1:
+            glUniformMatrix4fv(glGetUniformLocation(lightingPipeline.shaderProgram, "model"), 1, GL_TRUE, tr.identity())
+        elif controller.building == 2:
+            glUniformMatrix4fv(glGetUniformLocation(lightingPipeline.shaderProgram, "model"), 1, GL_TRUE, tr.identity())
 
         #glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "model"), 1, GL_TRUE, tr.identity())
         #pipeline.drawCall(gpuAxis, GL_LINES)

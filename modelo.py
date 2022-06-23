@@ -166,7 +166,7 @@ class WillisTower(object):
 class BurjAlArab(object):
 
     def __init__(self, pipeline):
-        gpuWhiteCube = createGPUShape(bs.createColorCube(0.9, 0.9, 0.9), pipeline)
+        gpuWhiteCube = createGPUShape(bs.createColorCube(0.95, 0.95, 0.95), pipeline)
         gpuLightBlueCube = createGPUShape(bs.createColorCube(0.28, 0.87, 0.92), pipeline)
 
         body = sg.SceneGraphNode('base')
@@ -187,7 +187,7 @@ class BurjAlArab(object):
 
 
         alero = sg.SceneGraphNode('alero')
-        alero.transform = tr.matmul([tr.translate(0.0, 0.4, 1.6),tr.scale(0.8, 0.2, 0.25)])
+        alero.transform = tr.matmul([tr.translate(0.0, 0.35, 1.7),tr.scale(0.7, 0.2, 0.25)])
         alero.childs += [gpuWhiteCube]
 
         ventana1 = sg.SceneGraphNode('ventana1')
@@ -199,7 +199,7 @@ class BurjAlArab(object):
         ventana2.childs += [gpuLightBlueCube]
 
         ventana3 = sg.SceneGraphNode('ventana3')
-        ventana3.transform = tr.matmul([tr.translate(0.0, -0.1, 0.75),tr.scale(0.8, 0.6, 0.5)])
+        ventana3.transform = tr.matmul([tr.translate(0.0, -0.125, 0.75),tr.scale(0.8, 0.65, 0.5)])
         ventana3.childs += [gpuLightBlueCube]
 
         ventana4 = sg.SceneGraphNode('ventana4')
