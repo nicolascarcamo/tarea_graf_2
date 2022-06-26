@@ -42,6 +42,7 @@ if __name__ == "__main__":
     textureShaderProgram = es.SimpleTextureModelViewProjectionShaderProgram()
     lightingPipeline = ls.SimpleGouraudShaderProgram()
     phongPipeline = ls.SimplePhongShaderProgram()
+    textureLightShaderProgram = ls.SimpleTextureGouraudShaderProgram()
 
     # Telling OpenGL to use our shader program
     glUseProgram(pipeline.shaderProgram)
@@ -52,13 +53,13 @@ if __name__ == "__main__":
     # and which one is at the back
     glEnable(GL_DEPTH_TEST)
     # Convenience function to ease initialization
-    empire = EmpireState(pipeline)
-    willis = WillisTower(pipeline)
-    burj = BurjAlArab(pipeline)
+    empire = EmpireState(phongPipeline)
+    willis = WillisTower(lightingPipeline)
+    burj = BurjAlArab(lightingPipeline)
 
-    empireGround = EmpireGround(textureShaderProgram)
-    willisGround = WillisGround(textureShaderProgram)
-    burjGround = BurjAlArabGround(textureShaderProgram)
+    empireGround = EmpireGround(textureLightShaderProgram)
+    willisGround = WillisGround(textureLightShaderProgram)
+    burjGround = BurjAlArabGround(textureLightShaderProgram)
     # Creating shapes on GPU memory
 
     t0 = glfw.get_time()
@@ -84,67 +85,158 @@ if __name__ == "__main__":
 
         # Drawing shapes with different model transformations
         if controller.building == 0:
-            glUseProgram(pipeline.shaderProgram)
-            glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "projection"), 1, GL_TRUE, controller.project_value)    
-            glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "view"), 1, GL_TRUE, controller.view)
-            empire.draw(pipeline)
+            glUseProgram(lightingPipeline.shaderProgram) 
 
-            glUseProgram(textureShaderProgram.shaderProgram)
-            glUniformMatrix4fv(glGetUniformLocation(textureShaderProgram.shaderProgram, "projection"), 1, GL_TRUE, controller.project_value)  
-            glUniformMatrix4fv(glGetUniformLocation(textureShaderProgram.shaderProgram, "view"), 1, GL_TRUE, controller.view)
-            empireGround.draw(textureShaderProgram)
+            glUniform3f(glGetUniformLocation(phongPipeline.shaderProgram, "La"), controller.daylightR, controller.daylightG, controller.daylightB)
+            glUniform3f(glGetUniformLocation(phongPipeline.shaderProgram, "Ld"), 1.0, 1.0, 1.0)
+            glUniform3f(glGetUniformLocation(phongPipeline.shaderProgram, "Ls"), controller.daylightR, controller.daylightG, controller.daylightB)
+
+            # Object is barely visible at only ambient. Diffuse behavior is slightly red. Sparkles are white
+            glUniform3f(glGetUniformLocation(phongPipeline.shaderProgram, "Ka"), 0.8, 0.8, 0.8)
+            glUniform3f(glGetUniformLocation(phongPipeline.shaderProgram, "Kd"), 0.8, 0.8, 0.8)
+            glUniform3f(glGetUniformLocation(phongPipeline.shaderProgram, "Ks"), 1.0, 1.0, 1.0)
+
+            glUniform3f(glGetUniformLocation(phongPipeline.shaderProgram, "lightPosition"), -4, -4, 5)
+            glUniform3f(glGetUniformLocation(phongPipeline.shaderProgram, "viewPosition"), controller.viewPos[0], controller.viewPos[1],
+                        controller.viewPos[2])
+            glUniform1ui(glGetUniformLocation(phongPipeline.shaderProgram, "shininess"), 90)
+
+            glUniform1f(glGetUniformLocation(phongPipeline.shaderProgram, "constantAttenuation"), 0.0001)
+            glUniform1f(glGetUniformLocation(phongPipeline.shaderProgram, "linearAttenuation"), 0.03)
+            glUniform1f(glGetUniformLocation(phongPipeline.shaderProgram, "quadraticAttenuation"), 0.01)
+
+            glUniformMatrix4fv(glGetUniformLocation(phongPipeline.shaderProgram, "projection"), 1, GL_TRUE, controller.project_value)
+            glUniformMatrix4fv(glGetUniformLocation(phongPipeline.shaderProgram, "view"), 1, GL_TRUE, controller.view)
+            glUniformMatrix4fv(glGetUniformLocation(phongPipeline.shaderProgram, "model"), 1, GL_TRUE, tr.identity())
+            empire.draw(phongPipeline)
+
+            glUseProgram(textureLightShaderProgram.shaderProgram)
+            
+            glUniform3f(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "La"), controller.daylightR, controller.daylightG, controller.daylightB)
+            glUniform3f(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "Ld"), 0.2, 0.2, 0.2)
+            glUniform3f(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "Ls"), controller.daylightR, controller.daylightG, controller.daylightB)
+
+            # Object is barely visible at only ambient. Diffuse behavior is slightly red. Sparkles are white
+            glUniform3f(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "Ka"), 0.8, 0.8, 0.8)
+            glUniform3f(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "Kd"), 0.8, 0.8, 0.8)
+            glUniform3f(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "Ks"), 1.0, 1.0, 1.0)
+
+            glUniform3f(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "lightPosition"), 4, 4, 5)
+            glUniform3f(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "viewPosition"), controller.viewPos[0], controller.viewPos[1],
+                        controller.viewPos[2])
+            glUniform1ui(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "shininess"), 90)
+
+            glUniform1f(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "constantAttenuation"), 0.0001)
+            glUniform1f(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "linearAttenuation"), 0.03)
+            glUniform1f(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "quadraticAttenuation"), 0.01)
+
+
+            glUniformMatrix4fv(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "view"), 1, GL_TRUE, controller.view)
+            glUniformMatrix4fv(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "projection"), 1, GL_TRUE, controller.project_value)
+            empireGround.draw(textureLightShaderProgram)
         
         elif controller.building == 1:
-            glUseProgram(pipeline.shaderProgram)
-            glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "projection"), 1, GL_TRUE, controller.project_value)    
-            glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "view"), 1, GL_TRUE, controller.view)
-            willis.draw(pipeline)
+            glUseProgram(lightingPipeline.shaderProgram)
 
-            glUseProgram(textureShaderProgram.shaderProgram)
-            glUniformMatrix4fv(glGetUniformLocation(textureShaderProgram.shaderProgram, "projection"), 1, GL_TRUE, controller.project_value)  
-            glUniformMatrix4fv(glGetUniformLocation(textureShaderProgram.shaderProgram, "view"), 1, GL_TRUE, controller.view)
-            willisGround.draw(textureShaderProgram)
+            glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "La"), controller.daylightR, controller.daylightG, controller.daylightB)
+            glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Ld"), 0.7, 0.7, 1.0)
+            glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Ls"), controller.daylightR, controller.daylightG, controller.daylightB)
+
+            # Object is barely visible at only ambient. Diffuse behavior is slightly red. Sparkles are white
+            glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Ka"), 0.5, 0.5, 0.5)
+            glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Kd"), 0.8, 0.8, 0.8)
+            glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Ks"), 1.0, 1.0, 1.0)
+
+            glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "lightPosition"), -5, -5, 2)
+            glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "viewPosition"), controller.viewPos[0], controller.viewPos[1],
+                        controller.viewPos[2])
+            glUniform1ui(glGetUniformLocation(lightingPipeline.shaderProgram, "shininess"), 80)
+
+            glUniform1f(glGetUniformLocation(lightingPipeline.shaderProgram, "constantAttenuation"), 0.0001)
+            glUniform1f(glGetUniformLocation(lightingPipeline.shaderProgram, "linearAttenuation"), 0.03)
+            glUniform1f(glGetUniformLocation(lightingPipeline.shaderProgram, "quadraticAttenuation"), 0.01)
+
+            glUniformMatrix4fv(glGetUniformLocation(lightingPipeline.shaderProgram, "projection"), 1, GL_TRUE, controller.project_value)
+            glUniformMatrix4fv(glGetUniformLocation(lightingPipeline.shaderProgram, "view"), 1, GL_TRUE, controller.view)
+            glUniformMatrix4fv(glGetUniformLocation(lightingPipeline.shaderProgram, "model"), 1, GL_TRUE, tr.identity())
+            willis.draw(lightingPipeline)
+
+            
+            glUseProgram(textureLightShaderProgram.shaderProgram)
+            
+            glUniform3f(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "La"), controller.daylightR, controller.daylightG, controller.daylightB)
+            glUniform3f(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "Ld"), 0.7, 0.7, 1.0)
+            glUniform3f(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "Ls"), controller.daylightR, controller.daylightG, controller.daylightB)
+
+            # Object is barely visible at only ambient. Diffuse behavior is slightly red. Sparkles are white
+            glUniform3f(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "Ka"), 0.5, 0.5, 0.5)
+            glUniform3f(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "Kd"), 0.8, 0.8, 0.8)
+            glUniform3f(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "Ks"), 1.0, 1.0, 1.0)
+
+            glUniform3f(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "lightPosition"), -5, -5, 2)
+            glUniform3f(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "viewPosition"), controller.viewPos[0], controller.viewPos[1],
+                        controller.viewPos[2])
+            glUniform1ui(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "shininess"), 80)
+
+            glUniform1f(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "constantAttenuation"), 0.0001)
+            glUniform1f(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "linearAttenuation"), 0.03)
+            glUniform1f(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "quadraticAttenuation"), 0.01)
+
+            glUniformMatrix4fv(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "view"), 1, GL_TRUE, controller.view)
+            glUniformMatrix4fv(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "projection"), 1, GL_TRUE, controller.project_value)
+            willisGround.draw(textureLightShaderProgram)
         
         elif controller.building == 2:
-            glUseProgram(pipeline.shaderProgram)
-            glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "projection"), 1, GL_TRUE, controller.project_value)    
-            glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "view"), 1, GL_TRUE, controller.view)
-            burj.draw(pipeline)
+            glUseProgram(lightingPipeline.shaderProgram)
 
-            glUseProgram(textureShaderProgram.shaderProgram)
-            glUniformMatrix4fv(glGetUniformLocation(textureShaderProgram.shaderProgram, "projection"), 1, GL_TRUE, controller.project_value)  
-            glUniformMatrix4fv(glGetUniformLocation(textureShaderProgram.shaderProgram, "view"), 1, GL_TRUE, controller.view)
-            burjGround.draw(textureShaderProgram)
+            glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "La"), controller.daylightR, controller.daylightG, controller.daylightB)
+            glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Ld"), 1.0, 0.9, 0.3)
+            glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Ls"), controller.daylightR, controller.daylightG, controller.daylightB)
 
+            # Object is barely visible at only ambient. Diffuse behavior is slightly red. Sparkles are white
+            glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Ka"), 0.5, 0.5, 0.5)
+            glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Kd"), 0.5, 0.5, 0.5)
+            glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Ks"), 1.0, 1.0, 1.0)
 
-        glUseProgram(lightingPipeline.shaderProgram)
+            glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "lightPosition"), -5, -5, 2)
+            glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "viewPosition"), controller.viewPos[0], controller.viewPos[1],
+                        controller.viewPos[2])
+            glUniform1ui(glGetUniformLocation(lightingPipeline.shaderProgram, "shininess"), 80)
 
-        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "La"), 1.0, 1.0, 1.0)
-        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Ld"), 1.0, 1.0, 1.0)
-        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Ls"), 1.0, 1.0, 1.0)
+            glUniform1f(glGetUniformLocation(lightingPipeline.shaderProgram, "constantAttenuation"), 0.0001)
+            glUniform1f(glGetUniformLocation(lightingPipeline.shaderProgram, "linearAttenuation"), 0.03)
+            glUniform1f(glGetUniformLocation(lightingPipeline.shaderProgram, "quadraticAttenuation"), 0.01)
 
-        # Object is barely visible at only ambient. Diffuse behavior is slightly red. Sparkles are white
-        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Ka"), 0.2, 0.2, 0.2)
-        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Kd"), 0.5, 0.5, 0.5)
-        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "Ks"), 1.0, 1.0, 1.0)
-
-        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "lightPosition"), -5, -5, 5)
-        glUniform3f(glGetUniformLocation(lightingPipeline.shaderProgram, "viewPosition"), controller.viewPos[0], controller.viewPos[1],
-                    controller.viewPos[2])
-        glUniform1ui(glGetUniformLocation(lightingPipeline.shaderProgram, "shininess"), 50)
-
-        glUniform1f(glGetUniformLocation(lightingPipeline.shaderProgram, "constantAttenuation"), 0.0001)
-        glUniform1f(glGetUniformLocation(lightingPipeline.shaderProgram, "linearAttenuation"), 0.03)
-        glUniform1f(glGetUniformLocation(lightingPipeline.shaderProgram, "quadraticAttenuation"), 0.01)
-
-        glUniformMatrix4fv(glGetUniformLocation(lightingPipeline.shaderProgram, "projection"), 1, GL_TRUE, controller.project_value)
-        glUniformMatrix4fv(glGetUniformLocation(lightingPipeline.shaderProgram, "view"), 1, GL_TRUE, controller.view)
-        if controller.building == 0:
+            glUniformMatrix4fv(glGetUniformLocation(lightingPipeline.shaderProgram, "projection"), 1, GL_TRUE, controller.project_value)
+            glUniformMatrix4fv(glGetUniformLocation(lightingPipeline.shaderProgram, "view"), 1, GL_TRUE, controller.view)
             glUniformMatrix4fv(glGetUniformLocation(lightingPipeline.shaderProgram, "model"), 1, GL_TRUE, tr.identity())
-        elif controller.building == 1:
-            glUniformMatrix4fv(glGetUniformLocation(lightingPipeline.shaderProgram, "model"), 1, GL_TRUE, tr.identity())
-        elif controller.building == 2:
-            glUniformMatrix4fv(glGetUniformLocation(lightingPipeline.shaderProgram, "model"), 1, GL_TRUE, tr.identity())
+            burj.draw(lightingPipeline)
+
+
+            glUseProgram(textureLightShaderProgram.shaderProgram)
+            
+            glUniform3f(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "La"), controller.daylightR, controller.daylightG, controller.daylightB)
+            glUniform3f(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "Ld"), 1.0, 0.9, 0.3)
+            glUniform3f(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "Ls"), controller.daylightR, controller.daylightG, controller.daylightB)
+
+            # Object is barely visible at only ambient. Diffuse behavior is slightly red. Sparkles are white
+            glUniform3f(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "Ka"), 0.5, 0.5, 0.5)
+            glUniform3f(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "Kd"), 0.5, 0.5, 0.5)
+            glUniform3f(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "Ks"), 1.0, 1.0, 1.0)
+
+            glUniform3f(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "lightPosition"), -5, -5, 2)
+            glUniform3f(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "viewPosition"), controller.viewPos[0], controller.viewPos[1],
+                        controller.viewPos[2])
+            glUniform1ui(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "shininess"), 80)
+
+            glUniform1f(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "constantAttenuation"), 0.0001)
+            glUniform1f(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "linearAttenuation"), 0.03)
+            glUniform1f(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "quadraticAttenuation"), 0.01)
+
+            glUniformMatrix4fv(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "view"), 1, GL_TRUE, controller.view)
+            glUniformMatrix4fv(glGetUniformLocation(textureLightShaderProgram.shaderProgram, "projection"), 1, GL_TRUE, controller.project_value)
+            burjGround.draw(textureLightShaderProgram)
+
 
         #glUniformMatrix4fv(glGetUniformLocation(pipeline.shaderProgram, "model"), 1, GL_TRUE, tr.identity())
         #pipeline.drawCall(gpuAxis, GL_LINES)

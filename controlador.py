@@ -33,6 +33,13 @@ class Controller:
         self.view = 0
         self.viewPos = 0
 
+        self.daylightR = 1.0
+        self.daylightG = 1.0
+        self.daylightB = 1.0
+        
+        self.daymode = 2
+
+
 
         self.theta = np.pi / 4
         self.updown = np.pi / 4
@@ -79,12 +86,44 @@ class Controller:
 
         elif key == glfw.KEY_E:
             self.set_building("Empire State")
+            if self.daymode == 1 or self.daymode == 2:
+                self.daylightR = 1.0
+                self.daylightG = 1.0
+                self.daylightB = 1.0
+            else:
+                self.daylightR = 0.1
+                self.daylightG = 0.1
+                self.daylightB = 0.1
 
         elif key == glfw.KEY_W:
             self.set_building("Willis Tower")
+            if self.daymode == 1 or self.daymode == 2:
+                self.daylightR = 0.7
+                self.daylightG = 0.7
+                self.daylightB = 1.0
+            else:
+                self.daylightR = 0.1
+                self.daylightG = 0.1
+                self.daylightB = 0.1
 
         elif key == glfw.KEY_B:
             self.set_building("Burj Al Arab")
+            if self.daymode == 1 or self.daymode == 2:
+                self.daylightR = 1.0
+                self.daylightG = 0.9
+                self.daylightB = 0.3
+            else:
+                self.daylightR = 0.1
+                self.daylightG = 0.1
+                self.daylightB = 0.1
+        
+        elif key == glfw.KEY_L:
+            if self.daymode == 0:
+                self.daymode = 1
+            elif self.daymode == 1:
+                self.daymode = 0
+            elif self.daymode == 2:
+                self.daymode = 0
 
         elif key == glfw.KEY_ESCAPE:
             glfw.set_window_should_close(window, True)
@@ -98,7 +137,6 @@ class Controller:
                 self.theta = 0
             else:
                 self.theta -= 2 * dt
-
             
 
         if (glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS):
@@ -118,6 +156,7 @@ class Controller:
                 self.updown = 1
             else:
                 self.updown -= 2 * dt        
+        
 
         # Setting up the view transform
         if self.projection == PROJECTION_ORTHOGRAPHIC:
@@ -160,7 +199,51 @@ class Controller:
         else:
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE)
 
-
+        if self.building == 0:
+            if self.daymode == 0:
+                if self.daylightR >= 0.1:
+                    self.daylightR -= dt 
+                if self.daylightG >= 0.1:
+                    self.daylightG -= dt 
+                if self.daylightB >= 0.1:
+                    self.daylightB -= dt 
+            elif self.daymode == 1:
+                if self.daylightR <= 1.0:
+                    self.daylightR += dt 
+                if self.daylightG <= 1.0:
+                    self.daylightG += dt 
+                if self.daylightB <= 1.0:
+                    self.daylightB += dt 
+        elif self.building == 1:
+            if self.daymode == 0:
+                if self.daylightR >= 0.1:
+                    self.daylightR -= dt 
+                if self.daylightG >= 0.1:
+                    self.daylightG -= dt 
+                if self.daylightB >= 0.1:
+                    self.daylightB -= dt 
+            elif self.daymode == 1:
+                if self.daylightR <= 0.7:
+                    self.daylightR += dt 
+                if self.daylightG <= 0.7:
+                    self.daylightG += dt 
+                if self.daylightB <= 1.0:
+                    self.daylightB += dt
+        elif self.building == 2:
+            if self.daymode == 0:
+                if self.daylightR >= 0.1:
+                    self.daylightR -= dt 
+                if self.daylightG >= 0.1:
+                    self.daylightG -= dt 
+                if self.daylightB >= 0.1:
+                    self.daylightB -= dt 
+            elif self.daymode == 1:
+                if self.daylightR <= 1.0:
+                    self.daylightR += dt 
+                if self.daylightG <= 0.9:
+                    self.daylightG += dt 
+                if self.daylightB <= 0.2:
+                    self.daylightB += dt
 
     def project(self, width, height):
         if self.projection == PROJECTION_ORTHOGRAPHIC:

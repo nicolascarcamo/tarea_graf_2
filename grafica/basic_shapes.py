@@ -30,7 +30,9 @@ __all__ = [
     'Shape'
 ]
 
+from asyncio.windows_events import NULL
 import math
+from tkinter import image_names
 import numpy as np
 import sys
 import os.path
@@ -44,9 +46,10 @@ __license__ = "MIT"
 
 # A simple class container to store vertices and indices that define a shape
 class Shape:
-    def __init__(self, vertices, indices):
+    def __init__(self, vertices, indices, image_filename = None):
         self.vertices = vertices
         self.indices = indices
+        self.image = image_filename
 
     def __str__(self):
         return "vertices: " + str(self.vertices) + "\n" \
@@ -631,4 +634,4 @@ def createTextureNormalsCube(image_filename):
         19, 18, 17, 17, 16, 19,  # Y+
         20, 21, 22, 22, 23, 20]  # Y-
 
-    return Shape(vertices, indices, image_filename)
+    return Shape(vertices, indices)
